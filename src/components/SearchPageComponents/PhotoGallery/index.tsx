@@ -1,8 +1,13 @@
-function PhotoGallery() {
+interface PhotoGalleryProps {
+  searchTerm: string;
+}
+
+function PhotoGallery({ searchTerm }: PhotoGalleryProps) {
   return (
-    <>
-      <h1>PhotoGallery</h1>
-    </>
+    <div>
+      <h2>Gallery for: {searchTerm}</h2>
+    </div>
   );
 }
+
 export default PhotoGallery;

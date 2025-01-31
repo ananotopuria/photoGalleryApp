@@ -6,14 +6,14 @@ function HomePageComponents() {
     backgroundImage: `url(${background})`,
   };
   return (
-    <div
+    <section
       className="relative w-full h-screen bg-cover bg-center flex items-center justify-center"
       style={backgroundStyle}
     >
       <div className="absolute inset-0 bg-black opacity-50 pointer-events-none"></div>
       <div className="flex flex-col items-center justify-center font-bold text-white relative z-10 text-center">
         <h1 className="text-6xl font-semibold block">Photo Gallery</h1>
-        <p className="ext-2xl py-5 block font-bold text-2xl mt-8 text-pink-300">
+        <p className="ext-2xl py-5 block font-bold text-2xl mt-8 text-[#dea2a0]">
           Unlock a Universe of Visual Inspiration
         </p>
         <Link to="search">
@@ -22,7 +22,7 @@ function HomePageComponents() {
           </button>
         </Link>
       </div>
-    </div>
+    </section>
   );
 }
 
