@@ -1,7 +1,7 @@
 function HistoryPageComponents() {
   return (
     <div>
-      <h1>Historypagecomponents</h1>
+      <h1 className="text-red-600">Historypagecomponents</h1>
     </div>
   );
 }
