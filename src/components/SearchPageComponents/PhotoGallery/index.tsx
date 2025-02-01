@@ -13,14 +13,13 @@ interface ImageResult {
   alt_description: string;
 }
 
-const url =
-  "https://api.unsplash.com/search/photos?client_id=0WwI5ofHM4S-UXcuh92k7LTEf1vdow3HAlKETyblUEA&query=cars";
+const url = `https://api.unsplash.com/search/photos?client_id=${import.meta.env.VITE_API_KEY}&query`;
 
 function PhotoGallery({ searchTerm }: PhotoGalleryProps) {
   const response = useQuery({
-    queryKey: ["images"],
+    queryKey: ["images", searchTerm],
     queryFn: async () => {
-      const result = await axios.get(url);
+      const result = await axios.get(`${url}&query=${searchTerm}`);
       return result.data;
     },
   });
@@ -28,14 +27,14 @@ function PhotoGallery({ searchTerm }: PhotoGalleryProps) {
   if (response.isLoading) {
     return (
       <section>
-        <h3>Loading...</h3>
+        <h3 className="text-center">Loading...</h3>
       </section>
     );
   }
   if (response.isError) {
     return (
       <section>
-        <h3>There was an error...</h3>
+        <h3 className="text-center">There was an error...</h3>
       </section>
     );
   }
@@ -43,17 +42,26 @@ function PhotoGallery({ searchTerm }: PhotoGalleryProps) {
   if (results.length < 1) {
     return (
       <section>
-        <h3>There was an error...</h3>
+        <h3 className="text-center">There was an error...</h3>
       </section>
     );
   }
   return (
-    <section>
+    <section className="flex flex-col mb-4 bg-amber-500">
       <h2>Gallery for: {searchTerm}</h2>
-      {results.map((item: ImageResult) => {
-        const imageUrl: string | undefined = item?.urls?.regular;
-        return <img src={imageUrl} key={item.id} alt={item.alt_description} />;
-      })}
+      <div className="grid grid-cols-3 gap-2 self-center">
+        {results.map((item: ImageResult) => {
+          const imageUrl: string | undefined = item?.urls?.regular;
+          return (
+            <img
+              src={imageUrl}
+              key={item.id}
+              className="w-[20rem] p-2"
+              alt={item.alt_description}
+            />
+          );
+        })}
+      </div>
     </section>
   );
 }
