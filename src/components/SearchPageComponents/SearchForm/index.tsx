@@ -5,20 +5,14 @@ function SearchForm({ setSearchTerm }: SearchFormProps) {
   const [searchValue, setSearchValue] = useState<string>("");
 
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setSearchValue(event.target.value);
-  }
-
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!searchValue.trim()) {
-      return;
-    }
-    setSearchTerm(searchValue);
+    const newValue = event.target.value;
+    setSearchValue(newValue);
+    setSearchTerm(newValue);
   }
 
   return (
     <section className="bg-[white] flex justify-center">
-      <form onSubmit={handleSubmit}>
+      <form>
         <input
           type="text"
           className="text-center w-[20rem]"
