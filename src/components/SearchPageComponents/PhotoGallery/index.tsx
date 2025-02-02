@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import useInfiniteScroll from "./../../../hooks/useInfiniteScroll";
+import PhotoModal from "./../PhotoModal";
 
 interface PhotoGalleryProps {
   searchTerm: string;
@@ -20,6 +21,7 @@ const ACCESS_KEY = import.meta.env.VITE_API_KEY;
 function PhotoGallery({ searchTerm }: PhotoGalleryProps) {
   const [page, setPage] = useState(1);
   const [allResults, setAllResults] = useState<ImageResult[]>([]);
+  const [selectedPhotoId, setSelectedPhotoId] = useState<string | null>(null);
 
   const apiUrl = searchTerm.trim()
     ? `https://api.unsplash.com/search/photos?client_id=${ACCESS_KEY}&query=${searchTerm}&per_page=20&page=${page}`
@@ -44,7 +46,12 @@ function PhotoGallery({ searchTerm }: PhotoGalleryProps) {
       if (page === 1) {
         setAllResults(results);
       } else {
-        setAllResults((prev) => [...prev, ...results]);
+        setAllResults((prev) => {
+          const newResults = results.filter(
+            (item) => !prev.some((prevItem) => prevItem.id === item.id),
+          );
+          return [...prev, ...newResults];
+        });
       }
     }
   }, [data, searchTerm, page]);
@@ -97,13 +104,20 @@ function PhotoGallery({ searchTerm }: PhotoGalleryProps) {
             key={item.id}
             src={item.urls.regular}
             alt={item.alt_description || "Unsplash image"}
-            className="w-[20rem] p-2 rounded-lg shadow-lg"
+            className="w-[20rem] p-2 rounded-lg shadow-lg cursor-pointer"
+            onClick={() => setSelectedPhotoId(item.id)}
           />
         ))}
       </div>
       <div ref={infiniteRef} className="h-10 flex justify-center items-center">
         <p>Loading more images...</p>
       </div>
+      {selectedPhotoId && (
+        <PhotoModal
+          photoId={selectedPhotoId}
+          onClose={() => setSelectedPhotoId(null)}
+        />
+      )}
     </section>
   );
 }
