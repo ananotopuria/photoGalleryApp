@@ -5,20 +5,23 @@ function HomePageComponents() {
   const backgroundStyle: React.CSSProperties = {
     backgroundImage: `url(${background})`,
   };
+
   return (
     <section
       className="relative w-full h-screen bg-cover bg-center flex items-center justify-center"
       style={backgroundStyle}
     >
-      <div className="absolute inset-0 bg-black opacity-50 pointer-events-none"></div>
-      <div className="flex flex-col items-center justify-center font-bold text-white relative z-10 text-center">
-        <h1 className="text-6xl font-semibold block">Photo Gallery</h1>
-        <p className="ext-2xl py-5 block font-bold text-2xl mt-8 text-[#dea2a0]">
+      <div className="flex flex-col items-center justify-center text-white relative z-10 text-center px-6">
+        <h1 className="text-6xl sm:text-7xl font-extrabold drop-shadow-md">
+          Photo Gallery
+        </h1>
+        <p className="text-2xl sm:text-3xl mt-6 text-[#dea2a0] font-medium">
           Unlock a Universe of Visual Inspiration
         </p>
+
         <Link to="search">
-          <button className="cursor-pointer my-[2rem] w-[130px] h-[40px] bg-[#] rounded-lg text-white underline hover:no-underline hover:translate-y-1 ">
-            Explore now
+          <button className="mt-10 px-6 py-3 text-lg font-semibold bg-[#dea2a0] text-white rounded-lg shadow-lg transition-transform transform hover:scale-105 hover:bg-[#c48785] cursor-pointer">
+            Explore Now
           </button>
         </Link>
       </div>

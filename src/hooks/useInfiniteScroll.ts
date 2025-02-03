@@ -1,29 +1,25 @@
-import { useEffect, useRef } from "react";
-
-const useInfiniteScroll = (callback: () => void) => {
-  const observerRef = useRef<HTMLDivElement | null>(null);
+import { useEffect, useState } from "react";
+const useInfiniteScroll = (loadMore: () => void, offset = 200) => {
+  const [isFetching, setIsFetching] = useState(false);
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          callback();
-        }
-      },
-      {
-        rootMargin: "100px",
-      },
-    );
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } =
+        document.documentElement;
 
-    if (observerRef.current) {
-      observer.observe(observerRef.current);
-    }
-    return () => {
-      if (observerRef.current) {
-        observer.unobserve(observerRef.current);
+      if (scrollTop + clientHeight >= scrollHeight - offset && !isFetching) {
+        setIsFetching(true);
+        loadMore();
       }
     };
-  }, [callback]);
-  return observerRef;
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isFetching, loadMore]);
+  useEffect(() => {
+    if (isFetching) {
+      setTimeout(() => setIsFetching(false), 1000);
+    }
+  }, [isFetching]);
+  return { isFetching };
 };
 
 export default useInfiniteScroll;
