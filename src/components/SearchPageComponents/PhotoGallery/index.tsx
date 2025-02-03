@@ -27,15 +27,16 @@ function PhotoGallery({ searchTerm }: PhotoGalleryProps) {
     ? `https://api.unsplash.com/search/photos?client_id=${ACCESS_KEY}&query=${searchTerm}&per_page=20&page=${page}`
     : `https://api.unsplash.com/photos?client_id=${ACCESS_KEY}&order_by=popular&per_page=20&page=${page}`;
 
-  const { data } = useQuery({
+  const { data, isFetching } = useQuery({
     queryKey: ["images", searchTerm, page],
     queryFn: async () => {
+      console.log("Fetching images...");
       const response = await axios.get(apiUrl);
       return response.data;
     },
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
-    placeholderData: (prevData) => prevData || [],
+    enabled: true,
   });
 
   useEffect(() => {
@@ -59,21 +60,32 @@ function PhotoGallery({ searchTerm }: PhotoGalleryProps) {
   }, [data, searchTerm, page]);
 
   useEffect(() => {
-    setPage(1);
-    setAllResults([]);
+    if (searchTerm.trim() !== "") {
+      setPage(1);
+      setAllResults([]);
+    }
   }, [searchTerm]);
 
   const loadMore = () => {
     setPage((prev) => prev + 1);
   };
 
-  const { isFetching } = useInfiniteScroll(loadMore);
+  const { isFetching: isFetchingMore } = useInfiniteScroll(loadMore);
+
+  useEffect(() => {
+    loadMore();
+  }, []);
 
   return (
     <section className="flex flex-col items-center py-6 bg-gradient-to-b from-[#29353c] to-[#aac7d8] min-h-screen">
       <h2 className="text-center text-white text-3xl font-extrabold mb-6 drop-shadow-lg">
         {searchTerm.trim() ? `Gallery for: ${searchTerm}` : "Popular Images"}
       </h2>
+      {isFetching && (
+        <p className="text-white font-semibold text-lg animate-pulse mt-4">
+          Loading images...
+        </p>
+      )}
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 px-6 max-w-6xl">
         {allResults.map((item) => (
@@ -87,14 +99,14 @@ function PhotoGallery({ searchTerm }: PhotoGalleryProps) {
                 setSelectedPhotoId(item.id);
               }}
             />
-            <div className="absolute inset-0 bg-[#e1939342] bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+
+            <div className="absolute inset-0 bg-[#e1939342] bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer pointer-events-none">
               <p className="text-white text-sm font-semibold">Click to View</p>
             </div>
           </div>
         ))}
       </div>
-
-      {isFetching && (
+      {isFetchingMore && (
         <p className="text-[#44576d] font-semibold animate-pulse mt-6">
           Loading more images...
         </p>
