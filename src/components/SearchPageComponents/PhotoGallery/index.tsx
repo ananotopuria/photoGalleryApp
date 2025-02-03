@@ -27,91 +27,91 @@ function PhotoGallery({ searchTerm }: PhotoGalleryProps) {
     ? `https://api.unsplash.com/search/photos?client_id=${ACCESS_KEY}&query=${searchTerm}&per_page=20&page=${page}`
     : `https://api.unsplash.com/photos?client_id=${ACCESS_KEY}&order_by=popular&per_page=20&page=${page}`;
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isFetching } = useQuery({
     queryKey: ["images", searchTerm, page],
     queryFn: async () => {
-      const result = await axios.get(apiUrl);
-      return result.data;
+      console.log("Fetching images...");
+      const response = await axios.get(apiUrl);
+      return response.data;
     },
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+    enabled: true,
   });
 
   useEffect(() => {
-    if (data) {
-      let results: ImageResult[] = [];
-      if (searchTerm.trim()) {
-        results = data.results;
-      } else {
-        results = data;
-      }
-      if (page === 1) {
-        setAllResults(results);
-      } else {
-        setAllResults((prev) => {
-          const newResults = results.filter(
-            (item) => !prev.some((prevItem) => prevItem.id === item.id),
-          );
-          return [...prev, ...newResults];
-        });
-      }
-    }
+    if (!data) return;
+
+    const results: ImageResult[] = searchTerm.trim()
+      ? data.results || []
+      : Array.isArray(data)
+        ? data
+        : [];
+
+    setAllResults((prev) => {
+      if (page === 1) return results;
+      return [
+        ...prev,
+        ...results.filter(
+          (item) => !prev.some((prevItem) => prevItem.id === item.id),
+        ),
+      ];
+    });
   }, [data, searchTerm, page]);
 
   useEffect(() => {
-    setPage(1);
-    setAllResults([]);
+    if (searchTerm.trim() !== "") {
+      setPage(1);
+      setAllResults([]);
+    }
   }, [searchTerm]);
 
   const loadMore = () => {
     setPage((prev) => prev + 1);
   };
 
-  const infiniteRef = useInfiniteScroll(() => {
+  const { isFetching: isFetchingMore } = useInfiniteScroll(loadMore);
+
+  useEffect(() => {
     loadMore();
-  });
-
-  if (isLoading && page === 1) {
-    return (
-      <section>
-        <h3 className="text-center">Loading images...</h3>
-      </section>
-    );
-  }
-
-  if (isError) {
-    return (
-      <section>
-        <h3 className="text-center">There was an error loading images.</h3>
-      </section>
-    );
-  }
-
-  if (allResults.length === 0) {
-    return (
-      <section>
-        <h3 className="text-center">No images found for "{searchTerm}"</h3>
-      </section>
-    );
-  }
+  }, []);
 
   return (
-    <section className="flex flex-col mb-4 bg-amber-500">
-      <h2 className="text-center text-white text-xl font-bold">
+    <section className="flex flex-col items-center py-6 bg-gradient-to-b from-[#29353c] to-[#aac7d8] min-h-screen">
+      <h2 className="text-center text-white text-3xl font-extrabold mb-6 drop-shadow-lg">
         {searchTerm.trim() ? `Gallery for: ${searchTerm}` : "Popular Images"}
       </h2>
-      <div className="grid grid-cols-3 gap-2 self-center">
-        {allResults.map((item: ImageResult) => (
-          <img
-            key={item.id}
-            src={item.urls.regular}
-            alt={item.alt_description || "Unsplash image"}
-            className="w-[20rem] p-2 rounded-lg shadow-lg cursor-pointer"
-            onClick={() => setSelectedPhotoId(item.id)}
-          />
+      {isFetching && (
+        <p className="text-white font-semibold text-lg animate-pulse mt-4">
+          Loading images...
+        </p>
+      )}
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 px-6 max-w-6xl">
+        {allResults.map((item) => (
+          <div key={item.id} className="relative group">
+            <img
+              src={item.urls.regular}
+              alt={item.alt_description || "Unsplash image"}
+              className="w-full h-52 object-cover shadow-md transition-transform transform group-hover:scale-105 group-hover:shadow-cyan-400/40"
+              onClick={() => {
+                console.log("Clicked Photo ID:", item.id);
+                setSelectedPhotoId(item.id);
+              }}
+            />
+
+            <div className="absolute inset-0 bg-[#e1939342] bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer pointer-events-none">
+              <p className="text-white text-sm font-semibold">Click to View</p>
+            </div>
+          </div>
         ))}
       </div>
-      <div ref={infiniteRef} className="h-10 flex justify-center items-center">
-        <p>Loading more images...</p>
-      </div>
+      {isFetchingMore && (
+        <p className="text-[#44576d] font-semibold animate-pulse mt-6">
+          Loading more images...
+        </p>
+      )}
+
       {selectedPhotoId && (
         <PhotoModal
           photoId={selectedPhotoId}
