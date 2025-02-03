@@ -82,9 +82,12 @@ function PhotoGallery({ searchTerm }: PhotoGalleryProps) {
               src={item.urls.regular}
               alt={item.alt_description || "Unsplash image"}
               className="w-full h-52 object-cover shadow-md transition-transform transform group-hover:scale-105 group-hover:shadow-cyan-400/40"
-              onClick={() => setSelectedPhotoId(item.id)}
+              onClick={() => {
+                console.log("Clicked Photo ID:", item.id);
+                setSelectedPhotoId(item.id);
+              }}
             />
-            <div className="absolute inset-0 bg-[#e1939342] bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+            <div className="absolute inset-0 bg-[#e1939342] bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
               <p className="text-white text-sm font-semibold">Click to View</p>
             </div>
           </div>
