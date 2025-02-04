@@ -1,14 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SearchFormProps } from "./types";
 import toast, { Toaster } from "react-hot-toast";
+import useDebounce from "./../../../hooks/useDebounce";
 
 function SearchForm({ setSearchTerm }: SearchFormProps) {
   const [searchValue, setSearchValue] = useState<string>("");
-
+  const debouncedSearchTerm = useDebounce(searchValue, 500);
+  useEffect(() => {
+    setSearchTerm(debouncedSearchTerm);
+  }, [debouncedSearchTerm, setSearchTerm]);
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const newValue = event.target.value;
-    setSearchValue(newValue);
-    setSearchTerm(newValue);
+    setSearchValue(event.target.value);
   }
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
